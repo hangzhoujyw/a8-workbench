@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A8工作台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-card: #0f3460;
+            --text-primary: #eaeaea;
+            --text-secondary: #a0a0a0;
+            --accent: #00d9ff;
+            --accent-hover: #00b8d9;
+            --success: #00c853;
+            --warning: #ffa726;
+            --danger: #ef5350;
+            --border: #2a2a4a;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        .app { display: flex; flex-direction: column; min-height: 100vh; }
+        .header {
+            background: var(--bg-secondary);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .logo { font-size: 20px; font-weight: 600; color: var(--accent); }
+        .header-right { display: flex; align-items: center; gap: 12px; }
+        .user-name { color: var(--text-secondary); font-size: 14px; }
+        .main-container { display: flex; flex: 1; }
+        .sidebar {
+            width: 200px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            padding: 16px 0;
+        }
+        .nav-list { list-style: none; }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.2s;
+            gap: 12px;
+            color: var(--text-secondary);
+        }
+        .nav-item:hover { background: var(--bg-card); color: var(--text-primary); }
+        .nav-item.active {
+            background: var(--bg-card);
+            color: var(--accent);
+            border-left: 3px solid var(--accent);
+        }
+        .nav-icon { font-size: 18px; }
+        .content { flex: 1; padding: 24px; overflow-y: auto; }
+        .module-content { display: none; }
+        .module-content.active { display: block; }
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .module-header h2 { font-size: 24px; font-weight: 600; }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: var(--accent); color: var(--bg-primary); }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .task-stats, .review-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-number { font-size: 32px; font-weight: 700; color: var(--accent); }
+        .stat-label { font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
+        .task-list { display: flex; flex-direction: column; gap: 12px; }
+        .task-item {
+            background: var(--bg-card);
+            padding: 16px 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        .task-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 217, 255, 0.1);
+        }
+        .task-info { flex: 1; }
+        .task-name { font-size: 16px; font-weight: 500; margin-bottom: 4px; }
+        .task-meta { font-size: 13px; color: var(--text-secondary); }
+        .task-status { display: flex; align-items: center; gap: 12px; }
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-active { background: rgba(0, 200, 83, 0.2); color: var(--success); }
+        .status-inactive { background: rgba(160, 160, 160, 0.2); color: var(--text-secondary); }
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .toggle-switch.active { background: var(--success); }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        .toggle-switch.active::after { left: 22px; }
+        .template-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .category-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .category-card h3 { font-size: 16px; margin-bottom: 16px; color: var(--accent); }
+        .template-list { display: flex; flex-direction: column; gap: 10px; }
+        .template-item {
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .template-item:hover { background: var(--border); }
+        .template-name { font-size: 14px; font-weight: 500; display: block; margin-bottom: 4px; }
+        .template-desc { font-size: 12px; color: var(--text-secondary); }
+        .project-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+        .project-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .project-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 217, 255, 0.15);
+        }
+        .project-name { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+        .project-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; }
+        .project-progress { display: flex; align-items: center; gap: 8px; }
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+        .progress-text { font-size: 12px; color: var(--text-secondary); min-width: 36px; }
+        .knowledge-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .knowledge-category {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .knowledge-category h3 { font-size: 16px; margin-bottom: 16px; }
+        .knowledge-list { list-style: none; }
+        .knowledge-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .knowledge-list li:last-child { border-bottom: none; }
+        .review-list { display: flex; flex-direction: column; gap: 12px; }
+        .review-item {
+            background: var(--bg-card);
+            padding: 16px 20px;
+            border-radius: 8px;
+        }
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .review-title { font-size: 15px; font-weight: 500; }
+        .review-date { font-size: 12px; color: var(--text-secondary); }
+        .review-status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+        .review-status.pending { background: rgba(255, 167, 38, 0.2); color: var(--warning); }
+        .review-status.completed { background: rgba(0, 200, 83, 0.2); color: var(--success); }
+        .review-summary { font-size: 13px; color: var(--text-secondary); }
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+        .empty-state-icon { font-size: 48px; margin-bottom: 16px; }
+        .empty-state-text { font-size: 14px; }
+        /* Project Detail View */
+        .project-detail { display: none; }
+        .project-detail.active { display: block; }
+        .project-list-view.hidden { display: none; }
+        .breadcrumb { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; color: var(--text-secondary); font-size: 14px; }
+        .breadcrumb a { color: var(--accent); cursor: pointer; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .project-detail-header { margin-bottom: 24px; }
+        .project-detail-header h2 { font-size: 24px; margin-bottom: 8px; }
+        .project-detail-desc { color: var(--text-secondary); font-size: 14px; margin-bottom: 16px; }
+        .project-detail-progress { display: flex; align-items: center; gap: 12px; }
+        .project-detail-progress .progress-bar { height: 8px; flex: 1; max-width: 400px; }
+        .project-detail-progress .progress-text { font-size: 16px; font-weight: 600; color: var(--accent); }
+        .kanban-board { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 16px; }
+        .kanban-column { min-width: 260px; max-width: 280px; background: var(--bg-secondary); border-radius: 8px; padding: 16px; flex-shrink: 0; }
+        .kanban-column-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--border); }
+        .kanban-column-title { font-size: 14px; font-weight: 600; }
+        .kanban-column-count { background: var(--bg-card); padding: 2px 8px; border-radius: 10px; font-size: 11px; color: var(--text-secondary); }
+        .kanban-column.status-completed .kanban-column-header { border-bottom-color: var(--success); }
+        .kanban-column.status-in-progress .kanban-column-header { border-bottom-color: var(--accent); }
+        .kanban-column.status-not-started .kanban-column-header { border-bottom-color: var(--text-secondary); }
+        .kanban-card { background: var(--bg-card); padding: 12px; border-radius: 6px; margin-bottom: 8px; }
+        .kanban-card:last-child { margin-bottom: 0; }
+        .kanban-card-title { font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+        .kanban-card-meta { font-size: 11px; color: var(--text-secondary); }
+        .kanban-card-tag { display: inline-block; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-top: 6px; }
+        .tag-deliverable { background: rgba(0, 217, 255, 0.2); color: var(--accent); }
+        .tag-milestone { background: rgba(255, 167, 38, 0.2); color: var(--warning); }
+        .tag-task { background: rgba(160, 160, 160, 0.15); color: var(--text-secondary); }
+        /* Template Detail View */
+        .template-detail { display: none; margin-top: 20px; }
+        .template-detail.active { display: block; }
+        .template-detail-card { background: var(--bg-card); border-radius: 8px; padding: 24px; }
+        .template-detail-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+        .template-detail-desc { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
+        .template-preview { background: var(--bg-secondary); border-radius: 6px; padding: 16px; margin-bottom: 20px; font-size: 14px; line-height: 1.8; white-space: pre-wrap; }
+        .template-var { background: rgba(0, 217, 255, 0.2); color: var(--accent); padding: 1px 6px; border-radius: 3px; font-weight: 500; }
+        .template-form { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
+        .template-form-item { display: flex; align-items: center; gap: 12px; }
+        .template-form-item label { min-width: 80px; font-size: 14px; color: var(--text-secondary); }
+        .template-form-item input { flex: 1; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; color: var(--text-primary); font-size: 14px; outline: none; }
+        .template-form-item input:focus { border-color: var(--accent); }
+        .template-actions { display: flex; gap: 12px; }
+        .btn-copy { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border); }
+        .btn-copy:hover { border-color: var(--accent); color: var(--accent); }
+        /* Knowledge Base */
+        .knowledge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .knowledge-panel { background: var(--bg-card); border-radius: 8px; overflow: hidden; }
+        .knowledge-panel-header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.2s; }
+        .knowledge-panel-header:hover { background: rgba(0,217,255,0.05); }
+        .knowledge-panel-header h3 { font-size: 16px; display: flex; align-items: center; gap: 8px; }
+        .knowledge-panel-count { background: var(--bg-secondary); padding: 2px 10px; border-radius: 10px; font-size: 12px; color: var(--text-secondary); }
+        .knowledge-panel-body { display: none; padding: 0 20px 16px; }
+        .knowledge-panel.expanded .knowledge-panel-body { display: block; }
+        .knowledge-item { padding: 12px; background: var(--bg-secondary); border-radius: 6px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; }
+        .knowledge-item:hover { background: var(--border); }
+        .knowledge-item:last-child { margin-bottom: 0; }
+        .knowledge-item-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .knowledge-item-meta { font-size: 12px; color: var(--text-secondary); }
+        .knowledge-item-tag { font-size: 10px; padding: 2px 6px; border-radius: 3px; background: rgba(0,217,255,0.15); color: var(--accent); }
+        .knowledge-detail { display: none; margin-top: 20px; }
+        .knowledge-detail.active { display: block; }
+        .knowledge-detail-card { background: var(--bg-card); border-radius: 8px; padding: 24px; }
+        .knowledge-detail-content { background: var(--bg-secondary); border-radius: 6px; padding: 16px; margin: 16px 0; font-size: 14px; line-height: 1.8; white-space: pre-wrap; color: var(--text-secondary); }
+        .knowledge-detail-content strong { color: var(--text-primary); }
+        /* Daily Todo & Home */
+        .daily-todo-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+        .todo-section { background: var(--bg-card); border-radius: 8px; padding: 20px; }
+        .todo-section-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+        .todo-list { display: flex; flex-direction: column; gap: 10px; }
+        .todo-item { background: var(--bg-secondary); padding: 12px 16px; border-radius: 6px; display: flex; align-items: center; gap: 12px; transition: all 0.2s; }
+        .todo-item:hover { background: var(--border); }
+        .todo-checkbox { width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 4px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .todo-checkbox.checked { background: var(--success); border-color: var(--success); }
+        .todo-checkbox.checked::after { content: '✓'; color: white; font-size: 12px; font-weight: bold; }
+        .todo-content { flex: 1; }
+        .todo-title { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+        .todo-meta { font-size: 12px; color: var(--text-secondary); }
+        .todo-item.completed .todo-title { color: var(--text-secondary); text-decoration: line-through; }
+        .english-learning-card { background: var(--bg-card); border-radius: 8px; padding: 20px; margin-top: 24px; }
+        .english-learning-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; color: var(--accent); }
+        .english-learning-content { background: var(--bg-secondary); border-radius: 6px; padding: 16px; font-size: 14px; line-height: 1.8; white-space: pre-wrap; color: var(--text-secondary); }
+        .english-learning-content strong { color: var(--text-primary); }
+        .empty-todo { text-align: center; padding: 20px; color: var(--text-secondary); font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <h1 class="logo">A8工作台</h1>
+            <div class="header-right">
+                <span class="user-name">老蒋</span>
+            </div>
+        </header>
+        <div class="main-container">
+            <nav class="sidebar">
+                <ul class="nav-list">
+                    <li class="nav-item active" data-module="home">
+                        <span class="nav-icon">🏠</span>
+                        <span>首页</span>
+                    </li>
+                    <li class="nav-item" data-module="dashboard">
+                        <span class="nav-icon">📋</span>
+                        <span>任务看板</span>
+                    </li>
+                    <li class="nav-item" data-module="templates">
+                        <span class="nav-icon">📝</span>
+                        <span>指令模板</span>
+                    </li>
+                    <li class="nav-item" data-module="projects">
+                        <span class="nav-icon">📁</span>
+                        <span>项目管理</span>
+                    </li>
+                    <li class="nav-item" data-module="knowledge">
+                        <span class="nav-icon">🧠</span>
+                        <span>知识库</span>
+                    </li>
+                    <li class="nav-item" data-module="reviews">
+                        <span class="nav-icon"></span>
+                        <span>异常复盘</span>
+                    </li>
+                </ul>
+            </nav>
+            <main class="content">
+                <section id="home" class="module-content active">
+                    <div class="module-header">
+                        <h2>每日待办</h2>
+                        <button class="btn btn-primary" onclick="refreshDailyTodo()">刷新</button>
+                    </div>
+                    <div class="daily-todo-container">
+                        <div class="todo-section">
+                            <h3 class="todo-section-title">📌 老蒋要做</h3>
+                            <div class="todo-list" id="user-todo-list"></div>
+                        </div>
+                        <div class="todo-section">
+                            <h3 class="todo-section-title">⚡ A8要做</h3>
+                            <div class="todo-list" id="a8-todo-list"></div>
+                        </div>
+                    </div>
+                    <div class="english-learning-card" id="english-learning-card" style="display:none;">
+                        <h3>🎧 今日英语学习</h3>
+                        <div class="english-learning-content" id="english-learning-content"></div>
+                    </div>
+                </section>
+                <section id="dashboard" class="module-content">
+                    <div class="module-header">
+                        <h2>任务看板</h2>
+                        <button class="btn btn-primary" onclick="refreshTasks()">刷新</button>
+                    </div>
+                    <div class="task-stats">
+                        <div class="stat-card">
+                            <div class="stat-number" id="active-count">0</div>
+                            <div class="stat-label">启用中</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="inactive-count">0</div>
+                            <div class="stat-label">已停用</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="total-tasks">0</div>
+                            <div class="stat-label">总任务</div>
+                        </div>
+                    </div>
+                    <div class="task-list" id="task-list"></div>
+                </section>
+                <section id="templates" class="module-content">
+                    <div class="module-header">
+                        <h2>指令模板</h2>
+                        <button class="btn btn-primary" onclick="backToTemplates()">+ 新建模板</button>
+                    </div>
+                    <div class="template-categories" id="template-categories"></div>
+                    <div class="template-detail" id="template-detail">
+                        <div class="template-detail-card">
+                            <div class="breadcrumb">
+                                <a onclick="backToTemplates()">指令模板</a>
+                                <span>›</span>
+                                <span id="breadcrumb-template-name"></span>
+                            </div>
+                            <div class="template-detail-title" id="template-detail-title"></div>
+                            <div class="template-detail-desc" id="template-detail-desc"></div>
+                            <div class="template-preview" id="template-preview"></div>
+                            <div class="template-form" id="template-form"></div>
+                            <div class="template-tips" id="template-tips" style="background:rgba(0,217,255,0.08);border-radius:6px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:var(--text-secondary);line-height:1.6;"></div>
+                            <div class="template-actions">
+                                <button class="btn btn-primary" onclick="sendTemplate()">发送给A8</button>
+                                <button class="btn btn-copy" onclick="copyTemplate()">复制指令</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section id="projects" class="module-content">
+                    <div class="project-list-view" id="project-list-view">
+                        <div class="module-header">
+                            <h2>项目管理</h2>
+                            <button class="btn btn-primary">+ 新建项目</button>
+                        </div>
+                        <div class="project-list" id="project-list"></div>
+                    </div>
+                    <div class="project-detail" id="project-detail">
+                        <div class="breadcrumb">
+                            <a onclick="backToProjects()">项目管理</a>
+                            <span>›</span>
+                            <span id="breadcrumb-project-name"></span>
+                        </div>
+                        <div class="project-detail-header">
+                            <h2 id="detail-project-name"></h2>
+                            <div class="project-detail-desc" id="detail-project-desc"></div>
+                            <div class="project-detail-progress">
+                                <div class="progress-bar"><div class="progress-fill" id="detail-progress-fill"></div></div>
+                                <span class="progress-text" id="detail-progress-text"></span>
+                            </div>
+                        </div>
+                        <div class="kanban-board" id="kanban-board"></div>
+                    </div>
+                </section>
+                <section id="knowledge" class="module-content">
+                    <div class="module-header">
+                        <h2>知识库</h2>
+                        <button class="btn btn-primary" onclick="backToKnowledge()">+ 新增知识</button>
+                    </div>
+                    <div class="knowledge-grid" id="knowledge-grid"></div>
+                    <div class="knowledge-detail" id="knowledge-detail">
+                        <div class="knowledge-detail-card">
+                            <div class="breadcrumb">
+                                <a onclick="backToKnowledge()">知识库</a>
+                                <span>›</span>
+                                <span id="breadcrumb-knowledge-category"></span>
+                            </div>
+                            <h2 id="knowledge-detail-title"></h2>
+                            <div class="knowledge-detail-content" id="knowledge-detail-body"></div>
+                            <div style="display:flex;gap:12px;margin-top:16px;">
+                                <button class="btn btn-primary" onclick="backToKnowledge()">返回</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section id="reviews" class="module-content">
+                    <div class="module-header">
+                        <h2>异常复盘</h2>
+                        <button class="btn btn-primary">+ 新建复盘</button>
+                    </div>
+                    <div class="review-stats">
+                        <div class="stat-card">
+                            <div class="stat-number" id="pending-count">0</div>
+                            <div class="stat-label">待复盘</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="completed-count">0</div>
+                            <div class="stat-label">已完成</div>
+                        </div>
+                    </div>
+                    <div class="review-list" id="review-list"></div>
+                </section>
+            </main>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navItems = document.querySelectorAll('.nav-item');
+            const moduleContents = document.querySelectorAll('.module-content');
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const targetModule = this.dataset.module;
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                    moduleContents.forEach(content => content.classList.remove('active'));
+                    document.getElementById(targetModule).classList.add('active');
+                });
+            });
+            initDashboard();
+            initTemplates();
+            initKnowledge();
+            initProjects();
+            initReviews();
+            initHome();
+        });
+        
+        // ===== 首页每日待办 =====
+        function initHome() {
+            loadDailyTodo();
+        }
+        
+        function loadDailyTodo() {
+            // 老蒋的待办
+            const userTodos = [
+                { id: 'u1', title: '英语学习：听力15分钟', meta: 'ESL Pod / BBC', completed: false },
+                { id: 'u2', title: '英语学习：场景句型15分钟', meta: '跟读练习', completed: false },
+                { id: 'u3', title: '查看A8推送的学习内容', meta: '每日待办', completed: false }
+            ];
+            
+            // A8的待办
+            const a8Todos = [
+                { id: 'a1', title: '生成今日英语学习内容', meta: '已推送', completed: true },
+                { id: 'a2', title: '搏蔓GEO进度看板更新', meta: '每日23:00', completed: false },
+                { id: 'a3', title: '基金操作追踪', meta: '工作日14:30', completed: false }
+            ];
+            
+            renderTodos('user-todo-list', userTodos, 'user');
+            renderTodos('a8-todo-list', a8Todos, 'a8');
+            
+            // 加载英语学习内容
+            loadEnglishLearning();
+        }
+        
+        function renderTodos(containerId, todos, type) {
+            const container = document.getElementById(containerId);
+            if (todos.length === 0) {
+                container.innerHTML = '<div class="empty-todo">暂无待办</div>';
+                return;
+            }
+            container.innerHTML = todos.map(todo => `
+                <div class="todo-item ${todo.completed ? 'completed' : ''}" data-id="${todo.id}">
+                    <div class="todo-checkbox ${todo.completed ? 'checked' : ''}" onclick="toggleTodo('${type}', '${todo.id}')"></div>
+                    <div class="todo-content">
+                        <div class="todo-title">${todo.title}</div>
+                        <div class="todo-meta">${todo.meta}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function toggleTodo(type, todoId) {
+            console.log(`切换待办状态: ${type} - ${todoId}`);
+            // TODO: 实际状态持久化需要后端支持
+            const checkbox = event.target;
+            checkbox.classList.toggle('checked');
+            const todoItem = checkbox.closest('.todo-item');
+            todoItem.classList.toggle('completed');
+        }
+        
+        function refreshDailyTodo() {
+            loadDailyTodo();
+        }
+        
+        function loadEnglishLearning() {
+            // 从本地JSON文件加载今日英语学习内容
+            // 文件路径: ./英语学习/每日内容/today.json
+            fetch('./英语学习/每日内容/today.json')
+                .then(res => {
+                    if (!res.ok) throw new Error('Not found');
+                    return res.json();
+                })
+                .then(data => {
+                    const card = document.getElementById('english-learning-card');
+                    const content = document.getElementById('english-learning-content');
+                    card.style.display = 'block';
+                    content.innerHTML = formatEnglishContent(data);
+                })
+                .catch(() => {
+                    // 没有今日内容，显示默认提示
+                    const card = document.getElementById('english-learning-card');
+                    const content = document.getElementById('english-learning-content');
+                    card.style.display = 'block';
+                    content.innerHTML = '今日学习内容尚未生成，请等待A8推送或<a onclick="refreshDailyTodo()" style="color:var(--accent);cursor:pointer;">刷新</a>';
+                });
+        }
+        
+        function formatEnglishContent(data) {
+            let html = '';
+            if (data.phase) html += `<strong>当前阶段：</strong>${data.phase}<br><br>`;
+            if (data.scene) html += `<strong>今日场景：</strong>${data.scene}<br><br>`;
+            if (data.listening) {
+                html += `<strong>🎧 听力任务</strong><br>${data.listening}<br><br>`;
+            }
+            if (data.sentences && data.sentences.length > 0) {
+                html += `<strong>💬 场景句型</strong><br>`;
+                data.sentences.forEach(s => {
+                    html += `• ${s.en}<br>  ${s.cn}<br>`;
+                });
+                html += '<br>';
+            }
+            if (data.vocabulary && data.vocabulary.length > 0) {
+                html += `<strong>📖 核心词汇</strong><br>`;
+                data.vocabulary.forEach(v => {
+                    html += `• <strong>${v.word}</strong> ${v.phonetic} - ${v.meaning}<br>`;
+                });
+                html += '<br>';
+            }
+            if (data.practice) {
+                html += `<strong>🗣️ 口语练习</strong><br>${data.practice}`;
+            }
+            return html;
+        }
+        function initDashboard() { loadTasks(); }
+        function loadTasks() {
+            const tasks = [
+                { id: 1, name: '每日英语学习推送', schedule: '每日 08:30', status: 'active', lastExec: '2026-07-03' },
+                { id: 2, name: 'A股持仓追踪', schedule: '周二-四 14:10', status: 'active', lastExec: '2026-07-01', script: 'stock_tracker.py' },
+                { id: 3, name: '基金操作追踪', schedule: '工作日 14:30', status: 'active', lastExec: '2026-07-01' },
+                { id: 4, name: '搏蔓GEO进度看板', schedule: '每日 23:00', status: 'active', lastExec: '2026-07-01' },
+                { id: 5, name: '剪头发提醒', schedule: '每15天 09:00', status: 'active', lastExec: '2026-06-17' },
+                { id: 6, name: '周报生成', schedule: '每周五 16:00', status: 'active', lastExec: '2026-06-27' },
+                { id: 7, name: '记忆整理', schedule: '每周日 09:00', status: 'active', lastExec: '2026-06-22' },
+                { id: 8, name: 'GEO话题追踪', schedule: '每周日 09:00', status: 'active', lastExec: '2026-06-29' }
+            ];
+            renderTasks(tasks);
+            updateTaskStats(tasks);
+        }
+        function renderTasks(tasks) {
+            const taskList = document.getElementById('task-list');
+            if (tasks.length === 0) {
+                taskList.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">暂无任务</div></div>';
+                return;
+            }
+            taskList.innerHTML = tasks.map(task => `
+                <div class="task-item">
+                    <div class="task-info">
+                        <div class="task-name">${task.name}</div>
+                        <div class="task-meta">${task.schedule} · 最近执行: ${task.lastExec}${task.script ? ' · 脚本: ' + task.script : ''}</div>
+                    </div>
+                    <div class="task-status">
+                        <span class="status-badge ${task.status === 'active' ? 'status-active' : 'status-inactive'}">
+                            ${task.status === 'active' ? '启用中' : '已停用'}
+                        </span>
+                        <div class="toggle-switch ${task.status === 'active' ? 'active' : ''}" onclick="toggleTask(${task.id})"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        function updateTaskStats(tasks) {
+            document.getElementById('active-count').textContent = tasks.filter(t => t.status === 'active').length;
+            document.getElementById('inactive-count').textContent = tasks.filter(t => t.status === 'inactive').length;
+            document.getElementById('total-tasks').textContent = tasks.length;
+        }
+        function toggleTask(taskId) { console.log('切换任务状态:', taskId); }
+        function refreshTasks() { loadTasks(); }
+        function initProjects() {
+            window.projectsData = [
+                {
+                    id: 1, name: '搏蔓GEO项目', desc: 'GEO优化后台系统开发，包含运营后台、客户端Dashboard、探针调度引擎等模块', progress: 59,
+                    stages: [
+                        {
+                            name: '需求确认', status: '已完成',
+                            items: [
+                                { title: '运营后台需求文档', meta: 'PRD + Demo确认', type: '交付物' },
+                                { title: '客户端Dashboard需求', meta: '含探针调度逻辑', type: '交付物' },
+                                { title: 'Demo走查通过', meta: '2026-06 确认', type: '里程碑' }
+                            ]
+                        },
+                        {
+                            name: '开发环境搭建', status: '已完成',
+                            items: [
+                                { title: '技术栈确定', meta: 'Python + Vue', type: '任务' },
+                                { title: '数据库设计', meta: 'Schema + 索引策略', type: '交付物' },
+                                { title: '开发/测试环境部署', meta: '', type: '里程碑' }
+                            ]
+                        },
+                        {
+                            name: '客户端Dashboard', status: '进行中',
+                            items: [
+                                { title: '前端页面开发', meta: '进度60%，待测试验收', type: '任务' },
+                                { title: '数据看板模块', meta: '可视化图表', type: '任务' },
+                                { title: '探针调度引擎', meta: '与后端联调中', type: '任务' },
+                                { title: '前端交付验收', meta: '待老蒋测试', type: '里程碑' }
+                            ]
+                        },
+                        {
+                            name: 'GEO优化引擎', status: '未开始',
+                            items: [
+                                { title: '探针调度算法', meta: '核心模块', type: '任务' },
+                                { title: '数据采集管道', meta: '', type: '任务' },
+                                { title: 'API接口开发', meta: '', type: '任务' }
+                            ]
+                        },
+                        {
+                            name: '测试与上线', status: '未开始',
+                            items: [
+                                { title: '集成测试', meta: '', type: '任务' },
+                                { title: '性能压测', meta: '', type: '任务' },
+                                { title: '正式上线', meta: '', type: '里程碑' }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: 2, name: 'AI翻车实录自媒体', desc: '自媒体内容创作，聊天截图+AI配音形式，职场效率+产品工作方向', progress: 15,
+                    stages: [
+                        {
+                            name: '选题策划', status: '进行中',
+                            items: [
+                                { title: '账号定位确认', meta: 'AI翻车实录，职场效率方向', type: '里程碑' },
+                                { title: '首条脚本完成', meta: '已写完待发布', type: '交付物' },
+                                { title: '选题库建立', meta: '储备5-10个选题', type: '任务' }
+                            ]
+                        },
+                        {
+                            name: '内容制作', status: '未开始',
+                            items: [
+                                { title: '截图素材采集', meta: '', type: '任务' },
+                                { title: 'AI配音流程', meta: '工具选型+效果测试', type: '任务' },
+                                { title: '视频剪辑模板', meta: '统一风格', type: '交付物' }
+                            ]
+                        },
+                        {
+                            name: '发布运营', status: '未开始',
+                            items: [
+                                { title: '首发平台确定', meta: '抖音/小红书/B站', type: '任务' },
+                                { title: '发布排期', meta: '每周至少1条', type: '任务' },
+                                { title: '数据追踪', meta: '播放/互动/涨粉', type: '任务' }
+                            ]
+                        }
+                    ]
+                }
+            ];
+            renderProjects(projectsData);
+        }
+        function renderProjects(projects) {
+            document.getElementById('project-list').innerHTML = projects.map(project => `
+                <div class="project-card" onclick="openProject(${project.id})">
+                    <div class="project-name">${project.name}</div>
+                    <div class="project-desc">${project.desc}</div>
+                    <div class="project-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: ${project.progress}%"></div></div>
+                        <span class="progress-text">${project.progress}%</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        // ===== 指令模板 =====
+        var templatesData = [
+            {
+                category: '💰 理财',
+                templates: [
+                    {
+                        id: 't1', name: '查行情+判断', desc: '一句话说清查什么、要什么结论',
+                        templateText: '查{{标的名称}}最新行情。我需要知道：当前价、涨跌幅、成交量，以及{{判断需求}}。不需要展开分析，给结论即可。',
+                        variables: [
+                            { key: '标的名称', placeholder: '如：深科技 / 000021' },
+                            { key: '判断需求', placeholder: '如：是否触及40元止损线 / 今天是否适合加仓' }
+                        ],
+                        tips: '💡 把"查什么"和"要什么结论"放在同一条消息里，避免我先查行情、你再追问、我再回答，省2轮对话。'
+                    },
+                    {
+                        id: 't2', name: '批量操作', desc: '多只持仓一次性处理，省零散触发',
+                        templateText: '持仓变动：\n{{变动内容}}\n请更新持仓记录，并告诉我每只的当前盈亏。',
+                        variables: [
+                            { key: '变动内容', placeholder: '如：兴森科技卖出500股；深科技加仓200股@35.5' }
+                        ],
+                        tips: '💡 多条变动一次性说，比每条触发一次省很多。我能批量处理+统一更新记录。'
+                    },
+                    {
+                        id: 't3', name: '板块速览', desc: '快速了解一个板块的热度',
+                        templateText: '帮我看一下{{板块名称}}板块今天的情况：主力资金流向、涨跌前3的个股、有没有值得关注的消息。简要总结，不用长篇分析。',
+                        variables: [
+                            { key: '板块名称', placeholder: '如：半导体设备、新能源' }
+                        ],
+                        tips: '💡 明确"简要总结"能避免长篇大论，省token。如果后续想深挖再追问。'
+                    }
+                ]
+            },
+            {
+                category: '📁 项目',
+                templates: [
+                    {
+                        id: 't4', name: '查项目进度', desc: '一句话获取项目全貌',
+                        templateText: '{{项目名称}}现在什么进度？列出各模块状态和当前卡点，重点说{{关注点}}。',
+                        variables: [
+                            { key: '项目名称', placeholder: '如：搏蔓GEO、工作台' },
+                            { key: '关注点', placeholder: '如：前端什么时候能测试 / 还有哪些bug没修' }
+                        ],
+                        tips: '💡 指定"关注点"能让我跳过无关细节，直接给你要的信息。'
+                    },
+                    {
+                        id: 't5', name: '派任务', desc: '一次说清目标+要求+截止时间',
+                        templateText: '任务：{{任务描述}}\n要求：{{质量要求}}\n截止：{{截止时间}}\n做完后直接交付，有问题提前说，别等到截止才说做不完。',
+                        variables: [
+                            { key: '任务描述', placeholder: '做什么，越具体越好' },
+                            { key: '质量要求', placeholder: '如：严格按demo来 / 需要测试通过' },
+                            { key: '截止时间', placeholder: '如：今天17:00前 / 明天上午' }
+                        ],
+                        tips: '💡 任务三要素：做什么+什么标准+什么时候要。缺一个我就会来问你，多一轮对话。末尾那句能让我主动汇报异常而不是藏着。'
+                    },
+                    {
+                        id: 't6', name: '复盘异常', desc: '引用具体事件触发复盘流程',
+                        templateText: '复盘：{{异常描述}}\n时间：{{发生时间}}\n请分析根因，给出改进措施，我审核后录入复盘库。',
+                        variables: [
+                            { key: '异常描述', placeholder: '发生了什么问题，尽量具体' },
+                            { key: '发生时间', placeholder: '如：今天上午、昨天下午' }
+                        ],
+                        tips: '💡 描述越具体，复盘越精准。"交付延期"不如"让你开发第三阶段前端，到下午没交付，拿出一个跟demo不符的功能表"。'
+                    }
+                ]
+            },
+            {
+                category: '📅 日常',
+                templates: [
+                    {
+                        id: 't7', name: '设提醒', desc: '一次性说清时间+内容',
+                        templateText: '提醒我：{{时间}}，{{提醒内容}}。',
+                        variables: [
+                            { key: '时间', placeholder: '如：明天9:00 / 每周五16:00 / 7月15日' },
+                            { key: '提醒内容', placeholder: '要做的事' }
+                        ],
+                        tips: '💡 时间和内容一句话说完就行，不用客套。'
+                    },
+                    {
+                        id: 't8', name: '信息调研', desc: '明确调研范围和输出要求',
+                        templateText: '调研：{{调研主题}}\n重点关注：{{关注方向}}\n输出：{{输出要求}}',
+                        variables: [
+                            { key: '调研主题', placeholder: '如：GEO行业最新动态' },
+                            { key: '关注方向', placeholder: '如：竞品变化、技术趋势、政策' },
+                            { key: '输出要求', placeholder: '如：500字以内要点总结 / 对比表格' }
+                        ],
+                        tips: '💡 指定输出格式（要点/表格/对比）能避免我写一大篇你不需要的东西。'
+                    },
+                    {
+                        id: 't9', name: '周报生成', desc: '给我要点清单，我帮你组织成文',
+                        templateText: '本周要点：{{本周事项}}\n帮我整理成周报，风格简洁务实，不要套话。',
+                        variables: [
+                            { key: '本周事项', placeholder: '用分号分隔，如：完成工作台MVP; 搏蔓前端联调; 调研GEO竞品' }
+                        ],
+                        tips: '💡 扔关键词给我就行，我来组织语言。比你自己写完整句子再让我润色省一半token。'
+                    }
+                ]
+            }
+        ];
+        var currentTemplate = null;
+
+        function initTemplates() {
+            renderTemplateCategories();
+        }
+
+        function renderTemplateCategories() {
+            var container = document.getElementById('template-categories');
+            container.innerHTML = templatesData.map(function(cat) {
+                var items = cat.templates.map(function(t) {
+                    return '<div class="template-item" onclick="openTemplate(\'' + t.id + '\')">' +
+                        '<span class="template-name">' + t.name + '</span>' +
+                        '<span class="template-desc">' + t.desc + '</span>' +
+                    '</div>';
+                }).join('');
+                return '<div class="category-card"><h3>' + cat.category + '</h3><div class="template-list">' + items + '</div></div>';
+            }).join('');
+        }
+
+        function openTemplate(templateId) {
+            var tmpl = null;
+            for (var i = 0; i < templatesData.length; i++) {
+                for (var j = 0; j < templatesData[i].templates.length; j++) {
+                    if (templatesData[i].templates[j].id === templateId) {
+                        tmpl = templatesData[i].templates[j];
+                        break;
+                    }
+                }
+                if (tmpl) break;
+            }
+            if (!tmpl) return;
+            currentTemplate = tmpl;
+
+            document.getElementById('template-categories').style.display = 'none';
+            document.getElementById('template-detail').classList.add('active');
+            document.getElementById('breadcrumb-template-name').textContent = tmpl.name;
+            document.getElementById('template-detail-title').textContent = tmpl.name;
+            document.getElementById('template-detail-desc').textContent = tmpl.desc;
+
+            // Render preview with highlighted variables
+            var previewHtml = tmpl.templateText.replace(/\{\{(.+?)\}\}/g, '<span class="template-var">{{$1}}</span>');
+            document.getElementById('template-preview').innerHTML = previewHtml;
+
+            // Render variable input form
+            var formHtml = '';
+            if (tmpl.variables.length > 0) {
+                tmpl.variables.forEach(function(v) {
+                    formHtml += '<div class="template-form-item">' +
+                        '<label>' + v.key + '</label>' +
+                        '<input type="text" id="var-' + v.key + '" placeholder="' + (v.placeholder || '') + '" oninput="updatePreview()">' +
+                    '</div>';
+                });
+            } else {
+                formHtml = '<div style="color:var(--text-secondary);font-size:13px;">此模板无需填写变量</div>';
+            }
+            document.getElementById('template-form').innerHTML = formHtml;
+
+            // Show tips
+            document.getElementById('template-tips').innerHTML = tmpl.tips || '';
+        }
+
+        function backToTemplates() {
+            document.getElementById('template-detail').classList.remove('active');
+            document.getElementById('template-categories').style.display = '';
+            currentTemplate = null;
+        }
+
+        function updatePreview() {
+            if (!currentTemplate) return;
+            var text = currentTemplate.templateText;
+            currentTemplate.variables.forEach(function(v) {
+                var input = document.getElementById('var-' + v.key);
+                var val = input ? input.value : '';
+                var display = val || '{{' + v.key + '}}';
+                var regex = new RegExp('\\{\\{' + v.key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\}\\}', 'g');
+                text = text.replace(regex, val ? val : '<span class="template-var">' + display + '</span>');
+            });
+            // If all variables filled, show clean text; otherwise highlight unfilled ones
+            var allFilled = currentTemplate.variables.every(function(v) {
+                var input = document.getElementById('var-' + v.key);
+                return input && input.value.trim() !== '';
+            });
+            if (allFilled) {
+                document.getElementById('template-preview').textContent = text;
+            } else {
+                var previewHtml = currentTemplate.templateText;
+                currentTemplate.variables.forEach(function(v) {
+                    var input = document.getElementById('var-' + v.key);
+                    var val = input ? input.value : '';
+                    var regex = new RegExp('\\{\\{' + v.key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\}\\}', 'g');
+                    if (val) {
+                        previewHtml = previewHtml.replace(regex, val);
+                    } else {
+                        previewHtml = previewHtml.replace(regex, '<span class="template-var">{{' + v.key + '}}</span>');
+                    }
+                });
+                document.getElementById('template-preview').innerHTML = previewHtml;
+            }
+        }
+
+        function getFilledTemplate() {
+            if (!currentTemplate) return '';
+            var text = currentTemplate.templateText;
+            currentTemplate.variables.forEach(function(v) {
+                var input = document.getElementById('var-' + v.key);
+                var val = (input && input.value) ? input.value.trim() : '{{' + v.key + '}}';
+                var regex = new RegExp('\\{\\{' + v.key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\}\\}', 'g');
+                text = text.replace(regex, val);
+            });
+            return text;
+        }
+
+        function sendTemplate() {
+            var text = getFilledTemplate();
+            if (currentTemplate && currentTemplate.variables.length > 0) {
+                var allFilled = currentTemplate.variables.every(function(v) {
+                    var input = document.getElementById('var-' + v.key);
+                    return input && input.value.trim() !== '';
+                });
+                if (!allFilled) {
+                    alert('请先填写所有变量');
+                    return;
+                }
+            }
+            alert('已发送指令：\n\n' + text + '\n\n（实际使用时会将此指令发送给A8执行）');
+        }
+
+        function copyTemplate() {
+            var text = getFilledTemplate();
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(function() {
+                    alert('已复制到剪贴板');
+                });
+            } else {
+                var ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                alert('已复制到剪贴板');
+            }
+        }
+
+        // ===== 知识库 =====
+        var knowledgeData = [
+            {
+                id: 'user',
+                icon: '👤',
+                name: '用户档案',
+                items: [
+                    { title: '基本信息', meta: '姓名、年龄、城市、职业', tag: '核心', content: '姓名：蒋有为，称呼：老蒋\n年龄：41岁\n生日：1985年3月17日\n城市：杭州，会说杭州话\n职业：AI/GEO方向创业公司后台产品设计\n性取向：同性恋' },
+                    { title: '沟通偏好', meta: '对话风格、内容要求', tag: '重要', content: '• 轻松损友互怼风格，嘴毒不严肃\n• 常用"⚡"表情\n• 沟通直接高效，不要客套\n• 写周报/对外产出要贴合他的表达习惯，口语化短句\n• 禁用AI套话，无明显AI痕迹' },
+                    { title: '家庭情况', meta: '家人信息', tag: '隐私', content: '• 爸妈70+（妈妈爱甜点微信熟练；爸爸牙口不好微信不熟练，爱看短视频）\n• 哥嫂+两侄女（初中/小学），有家庭微信群\n• 两只猫（燕尾服猫+虎斑猫）' },
+                    { title: '近期状态', meta: '2026年动态', tag: '时效', content: '• 2026.6择偶偏好强壮伴侣，自身计划练壮\n• 从依赖走向自主\n• 2026-06任搏蔓GEO全职产品经理，承担产品+开发双职责\n• 换车：方程豹钛7 EV顶配已下订，约2-3个月后提车' },
+                    { title: '性格特征', meta: '决策风格、心理特点', tag: '重要', content: '• 消费犹豫时直接鼓励，一步到位不分步走\n• 自信依赖收入验证\n• 讨好型人格，2026年转向设边界，易两极摆动\n• 不善主动聊天（交友场景）\n• 关心领域：理财、旅行、健身、交友、车辆' }
+                ]
+            },
+            {
+                id: 'a8exp',
+                icon: '🤖',
+                name: 'A8经验',
+                items: [
+                    { title: '省油沟通法则', meta: '如何跟A8说话最省积分', tag: '方法论', content: '1. 一句话说全，别拆三句说\n2. 新话题开新对话，避免上下文膨胀\n3. 别让我重复读同一个东西\n4. 简单问题别加附件\n5. 批量处理，别零散触发\n6. 截图比口头描述省\n7. script_path模式比description模式省\n8. 让我记住的结论别反复问\n\n核心：想清楚再说，说全一次说完。' },
+                    { title: '协作暗号', meta: '高效纠错机制', tag: '规则', content: '• "这不在demo里" → A8立即停下对照demo检查\n• 定期复盘机制：批评和骂不解决问题，结构化复盘才有效\n• 复盘流程：引用异常对话 → A8写复盘结论 → 用户插入批注\n\n背景：搏蔓项目中A8多次不按demo执行，承认错误但不改。暗号机制让纠错成本最低。' },
+                    { title: '踩过的坑', meta: '历史错误记录', tag: '教训', content: '• 称呼错误：把"老蒋"写成"老胥"，因档案中有错误信息\n  → 教训：以日常使用称呼为准，不要自行推断\n• 搏蔓项目：不按demo执行，随意增加需求，承认错误但不改\n  → 教训：demo是铁律，暗号纠错，定期复盘\n• 文件预览：CSS加载失败问题\n  → 教训：用单文件HTML内联CSS+JS，避免独立文件加载问题' }
+                ]
+            },
+            {
+                id: 'domain',
+                icon: '📚',
+                name: '领域知识',
+                items: [
+                    { title: 'GEO行业动态', meta: 'GEO概念、竞品、技术趋势', tag: '工作', content: 'GEO（Generative Engine Optimization）= 生成式引擎优化\n\n核心方向：让网站内容在AI搜索引擎（ChatGPT、Perplexity、Google AI Overview等）中获得更高推荐率。\n\n老蒋当前任务：在搏蔓公司做GEO方向后台产品，需快速掌握GEO概念+了解竞品后台产品设计。\n\n详细追踪见工作台「任务看板」中的GEO话题追踪任务。' },
+                    { title: '理财持仓', meta: '当前持仓与策略', tag: '实时', content: '【股票持仓】\n• 深科技(sz000021)：800股 成本35.21 止损40\n• 兴森科技(sz002436)：1400股 成本51.57 止损46\n• 三安光电(sh600703)：1000股 成本21.4735 止损19\n\n【基金/其他】\n• 股票总投入预算：20万，当前持仓约6.3万\n• 长鑫存储：等待7月中下旬打新\n• 三花智控：已清仓\n\n【策略】\n• 偏科技/半导体/新能源\n• 香港账户有美元头寸，待补充美股配置\n• 详细操作见定期任务「基金操作追踪」和「A股持仓追踪」' },
+                    { title: '自媒体运营', meta: 'AI翻车实录项目', tag: '进行中', content: '项目名：AI翻车实录\n形式：聊天截图 + AI配音\n方向：职场效率 + 产品工作\n\n当前进度：15%\n• 账号定位已确认\n• 首条脚本已完成，待发布\n• 选题库待建立\n\n首发平台：待定（抖音/小红书/B站）\n发布排期：每周至少1条' }
+                ]
+            },
+            {
+                id: 'deliverables',
+                icon: '📦',
+                name: '交付物库',
+                items: [
+                    { title: '搏蔓GEO项目交付物', meta: 'PRD、代码、测试报告等', tag: '项目', content: '• 运营后台PRD（已确认）\n• 客户端Dashboard PRD（已确认）\n• Demo走查记录（2026-06）\n• 数据库设计文档\n• 前端Dashboard代码（进行中，60%）\n• GEO自动化测试工具（已交付）\n\n待交付：\n• 前端Dashboard测试验收\n• GEO优化引擎模块\n• 探针调度引擎' },
+                    { title: '基金操作追踪报告', meta: '每个交易日自动生成', tag: '定期', content: '由定期任务「基金操作追踪」每个交易日14:30自动执行。\n\n内容包括：\n• 当日基金净值变动\n• 操作建议（买入/卖出/持有）\n• 市场环境简评\n\n交付方式：消息推送通知' },
+                    { title: '股票追踪报告', meta: '每周二-四14:10自动执行', tag: '定期', content: '由定期任务「A股持仓追踪」自动执行。\n\n内容包括：\n• 持仓股票实时行情\n• 盈亏计算\n• 止损线距离提醒\n• 异常波动预警\n\n当前监控：深科技、兴森科技、三安光电' },
+                    { title: 'A8工作台（当前）', meta: 'HTML单页应用', tag: '项目', content: '就是你现在看到的这个工作台！\n\n技术：单文件HTML，内联CSS+JS\n样式：深色主题 + 青色accent\n\n模块：\n• 任务看板（7个定期任务）\n• 指令模板（9个高效模板）\n• 项目管理（搏蔓GEO + 自媒体）\n• 知识库（本模块）\n• 异常复盘\n\n状态：MVP迭代中' }
+                ]
+            }
+        ];
+
+        function initKnowledge() {
+            renderKnowledgeGrid();
+        }
+
+        function renderKnowledgeGrid() {
+            var grid = document.getElementById('knowledge-grid');
+            grid.innerHTML = knowledgeData.map(function(cat) {
+                var items = cat.items.map(function(item, idx) {
+                    return '<div class="knowledge-item" onclick="openKnowledgeItem(\'' + cat.id + '\',' + idx + ')">' +
+                        '<div class="knowledge-item-title">' + item.title + '<span class="knowledge-item-tag">' + item.tag + '</span></div>' +
+                        '<div class="knowledge-item-meta">' + item.meta + '</div>' +
+                    '</div>';
+                }).join('');
+                return '<div class="knowledge-panel" id="kpanel-' + cat.id + '">' +
+                    '<div class="knowledge-panel-header" onclick="toggleKnowledgePanel(\'' + cat.id + '\')">' +
+                        '<h3>' + cat.icon + ' ' + cat.name + '</h3>' +
+                        '<span class="knowledge-panel-count">' + cat.items.length + '</span>' +
+                    '</div>' +
+                    '<div class="knowledge-panel-body">' + items + '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        function toggleKnowledgePanel(catId) {
+            var panel = document.getElementById('kpanel-' + catId);
+            panel.classList.toggle('expanded');
+        }
+
+        function openKnowledgeItem(catId, idx) {
+            var cat = knowledgeData.find(function(c) { return c.id === catId; });
+            if (!cat || !cat.items[idx]) return;
+            var item = cat.items[idx];
+
+            document.getElementById('knowledge-grid').style.display = 'none';
+            document.getElementById('knowledge-detail').classList.add('active');
+            document.getElementById('breadcrumb-knowledge-category').textContent = cat.name;
+            document.getElementById('knowledge-detail-title').textContent = item.title;
+            document.getElementById('knowledge-detail-body').innerHTML = item.content.replace(/\n/g, '<br>');
+        }
+
+        function backToKnowledge() {
+            document.getElementById('knowledge-detail').classList.remove('active');
+            document.getElementById('knowledge-grid').style.display = '';
+        }
+
+        function openProject(projectId) {
+            const project = projectsData.find(p => p.id === projectId);
+            if (!project) return;
+            showProjectDetail(project);
+        }
+
+        function backToProjects() {
+            document.getElementById('project-detail').classList.remove('active');
+            document.getElementById('project-list-view').classList.remove('hidden');
+        }
+
+        function showProjectDetail(project) {
+            document.getElementById('project-list-view').classList.add('hidden');
+            document.getElementById('project-detail').classList.add('active');
+            document.getElementById('breadcrumb-project-name').textContent = project.name;
+            document.getElementById('detail-project-name').textContent = project.name;
+            document.getElementById('detail-project-desc').textContent = project.desc;
+            document.getElementById('detail-progress-fill').style.width = project.progress + '%';
+            document.getElementById('detail-progress-text').textContent = project.progress + '%';
+            renderKanban(project.stages);
+        }
+
+        function renderKanban(stages) {
+            const board = document.getElementById('kanban-board');
+            board.innerHTML = stages.map(stage => {
+                const statusClass = stage.status === '已完成' ? 'status-completed' : stage.status === '进行中' ? 'status-in-progress' : 'status-not-started';
+                const cards = stage.items.map(item => {
+                    const tagClass = item.type === '交付物' ? 'tag-deliverable' : item.type === '里程碑' ? 'tag-milestone' : 'tag-task';
+                    return `
+                        <div class="kanban-card">
+                            <div class="kanban-card-title">${item.title}</div>
+                            ${item.meta ? '<div class="kanban-card-meta">' + item.meta + '</div>' : ''}
+                            <span class="kanban-card-tag ${tagClass}">${item.type}</span>
+                        </div>
+                    `;
+                }).join('');
+                return `
+                    <div class="kanban-column ${statusClass}">
+                        <div class="kanban-column-header">
+                            <span class="kanban-column-title">${stage.name}</span>
+                            <span class="kanban-column-count">${stage.items.length}</span>
+                        </div>
+                        ${cards}
+                    </div>
+                `;
+            }).join('');
+        }
+        function initReviews() {
+            const reviews = [
+                { id: 1, title: '称呼错误 - "老胥"', date: '2026-07-01', status: 'completed', summary: '错误使用姓氏作为称呼，应以日常使用称呼为准' },
+                { id: 2, title: '搏蔓项目交付延期', date: '2026-07-01', status: 'pending', summary: '未按demo执行，未主动汇报进度，交付物质量不达标' }
+            ];
+            renderReviews(reviews);
+            updateReviewStats(reviews);
+        }
+        function renderReviews(reviews) {
+            const reviewList = document.getElementById('review-list');
+            if (reviews.length === 0) {
+                reviewList.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-text">暂无复盘记录</div></div>';
+                return;
+            }
+            reviewList.innerHTML = reviews.map(review => `
+                <div class="review-item">
+                    <div class="review-header">
+                        <span class="review-title">${review.title}</span>
+                        <span class="review-date">${review.date}</span>
+                    </div>
+                    <span class="review-status ${review.status}">${review.status === 'pending' ? '待复盘' : '已确认'}</span>
+                    <div class="review-summary">${review.summary}</div>
+                </div>
+            `).join('');
+        }
+        function updateReviewStats(reviews) {
+            document.getElementById('pending-count').textContent = reviews.filter(r => r.status === 'pending').length;
+            document.getElementById('completed-count').textContent = reviews.filter(r => r.status === 'completed').length;
+        }
+    </script>
+</body>
+</html>
