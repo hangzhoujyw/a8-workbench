@@ -1,0 +1,61 @@
+{
+  "date": "2026-07-03",
+  "day": 1,
+  "phase": "第1阶段：激活期（第1周）",
+  "scene": "机场出行 - 值机与安检",
+  "listening": "搜索「ESL Pod Airport」或「BBC 6 Minute English Airport」，选择一集跟听。初期不求听懂每个词，重点是熟悉语流和节奏。",
+  "sentences": [
+    {
+      "en": "Where can I check in for my flight?",
+      "cn": "哪里可以办理值机？"
+    },
+    {
+      "en": "I have a reservation under the name Jiang.",
+      "cn": "我用蒋的名字预订了。"
+    },
+    {
+      "en": "Can I have a window seat, please?",
+      "cn": "请给我靠窗的座位。"
+    },
+    {
+      "en": "How many bags can I check in?",
+      "cn": "我可以托运几件行李？"
+    },
+    {
+      "en": "Is this bag within the weight limit?",
+      "cn": "这个行李在限重范围内吗？"
+    },
+    {
+      "en": "Where is the security checkpoint?",
+      "cn": "安检处在哪里？"
+    }
+  ],
+  "vocabulary": [
+    {
+      "word": "check in",
+      "phonetic": "/tʃek ɪn/",
+      "meaning": "办理登机手续、值机"
+    },
+    {
+      "word": "boarding pass",
+      "phonetic": "/ˈbɔːrdɪŋ pæs/",
+      "meaning": "登机牌"
+    },
+    {
+      "word": "carry-on",
+      "phonetic": "/ˈkæri ɒn/",
+      "meaning": "随身行李"
+    },
+    {
+      "word": "security",
+      "phonetic": "/sɪˈkjʊərəti/",
+      "meaning": "安检"
+    },
+    {
+      "word": "gate",
+      "phonetic": "/ɡeɪt/",
+      "meaning": "登机口"
+    }
+  ],
+  "practice": "假装你在机场，用英语自言自语：你现在在哪个航站楼？你要去哪里？你的航班几点起飞？试着用上面的句型说出来。"
+}

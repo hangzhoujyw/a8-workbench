@@ -1,0 +1,41 @@
+{
+  "1": {
+    "day": 1,
+    "date": "2026-07-02",
+    "phase": "激活期",
+    "week": 1,
+    "scene": "机场出行",
+    "topic": "值机 Check-in",
+    "file": "day_001.md",
+    "phrases_count": 6,
+    "vocab_count": 5,
+    "listening": "ESL Podcast 87 - Hotel Housekeeping",
+    "tip": "初期不求听懂每个词，重点是熟悉语流和节奏。"
+  },
+  "35": {
+    "day": 35,
+    "date": "2026-07-02",
+    "phase": "积累期",
+    "week": 5,
+    "scene": "社交闲聊",
+    "topic": "兴趣爱好 Hobbies & Interests",
+    "file": "day_035.md",
+    "phrases_count": 6,
+    "vocab_count": 5,
+    "listening": "All Ears English",
+    "tip": "积累期重点扩大输入量，多听多模仿。"
+  },
+  "90": {
+    "day": 90,
+    "date": "2026-07-02",
+    "phase": "实战期",
+    "week": 13,
+    "scene": "商务会议",
+    "topic": "产品演示 Product Presentation",
+    "file": "day_090.md",
+    "phrases_count": 6,
+    "vocab_count": 5,
+    "listening": "TED Talk",
+    "tip": "实战期尝试用英语思考和表达，不要先想中文再翻译。"
+  }
+}

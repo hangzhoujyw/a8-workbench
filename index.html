@@ -1048,11 +1048,44 @@
                     { title: '股票追踪报告', meta: '每周二-四14:10自动执行', tag: '定期', content: '由定期任务「A股持仓追踪」自动执行。\n\n内容包括：\n• 持仓股票实时行情\n• 盈亏计算\n• 止损线距离提醒\n• 异常波动预警\n\n当前监控：深科技、兴森科技、三安光电' },
                     { title: 'A8工作台（当前）', meta: 'HTML单页应用', tag: '项目', content: '就是你现在看到的这个工作台！\n\n技术：单文件HTML，内联CSS+JS\n样式：深色主题 + 青色accent\n\n模块：\n• 任务看板（7个定期任务）\n• 指令模板（9个高效模板）\n• 项目管理（搏蔓GEO + 自媒体）\n• 知识库（本模块）\n• 异常复盘\n\n状态：MVP迭代中' }
                 ]
+            },
+            {
+                id: 'english',
+                icon: '📖',
+                name: '英语学习',
+                items: []  // 动态加载自 archive_index.json
             }
         ];
 
         function initKnowledge() {
+            // 先渲染静态分类
             renderKnowledgeGrid();
+            // 动态加载英语学习归档
+            loadEnglishArchive();
+        }
+
+        function loadEnglishArchive() {
+            fetch('./英语学习/archive_index.json')
+                .then(function(r) { return r.ok ? r.json() : {}; })
+                .then(function(archive) {
+                    var cat = knowledgeData.find(function(c) { return c.id === 'english'; });
+                    if (!cat) return;
+                    // 按 day 降序排列
+                    var entries = Object.values(archive).sort(function(a, b) { return b.day - a.day; });
+                    cat.items = entries.map(function(e) {
+                        return {
+                            title: 'Day ' + e.day + ' - ' + e.scene + '（' + e.topic + '）',
+                            meta: e.date + ' | ' + e.phase + ' | 句型' + e.phrases_count + '个 词汇' + e.vocab_count + '个',
+                            tag: e.phase,
+                            content: '__LOAD_FILE__:' + e.file,
+                            file: e.file
+                        };
+                    });
+                    renderKnowledgeGrid();
+                })
+                .catch(function(err) {
+                    console.log('[知识库] 英语学习归档加载失败:', err);
+                });
         }
 
         function renderKnowledgeGrid() {
@@ -1088,7 +1121,41 @@
             document.getElementById('knowledge-detail').classList.add('active');
             document.getElementById('breadcrumb-knowledge-category').textContent = cat.name;
             document.getElementById('knowledge-detail-title').textContent = item.title;
-            document.getElementById('knowledge-detail-body').innerHTML = item.content.replace(/\n/g, '<br>');
+
+            // 如果是英语学习内容，从 markdown 文件动态加载
+            if (item.content && item.content.indexOf('__LOAD_FILE__:') === 0) {
+                var fileName = item.content.replace('__LOAD_FILE__:', '');
+                document.getElementById('knowledge-detail-body').innerHTML = '<p style="color:var(--text-secondary)">加载中...</p>';
+                fetch('./英语学习/每日内容/' + fileName)
+                    .then(function(r) { return r.ok ? r.text() : null; })
+                    .then(function(md) {
+                        if (md) {
+                            document.getElementById('knowledge-detail-body').innerHTML = simpleMarkdown(md);
+                        } else {
+                            document.getElementById('knowledge-detail-body').innerHTML = '<p style="color:var(--danger)">文件加载失败</p>';
+                        }
+                    })
+                    .catch(function() {
+                        document.getElementById('knowledge-detail-body').innerHTML = '<p style="color:var(--danger)">文件加载失败</p>';
+                    });
+            } else {
+                document.getElementById('knowledge-detail-body').innerHTML = item.content.replace(/\n/g, '<br>');
+            }
+        }
+
+        // 简易 Markdown 渲染（标题、粗体、列表、表格、引用、分割线）
+        function simpleMarkdown(md) {
+            var html = md
+                .replace(/^### (.+)$/gm, '<h4 style="color:var(--accent);margin:16px 0 8px">$1</h4>')
+                .replace(/^## (.+)$/gm, '<h3 style="color:var(--accent);margin:20px 0 10px;font-size:18px">$1</h3>')
+                .replace(/^# (.+)$/gm, '<h2 style="color:var(--accent);margin:24px 0 12px;font-size:22px">$1</h2>')
+                .replace(/^> (.+)$/gm, '<blockquote style="border-left:3px solid var(--accent);padding-left:12px;color:var(--text-secondary);margin:8px 0">$1</blockquote>')
+                .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--text-primary)">$1</strong>')
+                .replace(/^- (.+)$/gm, '• $1<br>')
+                .replace(/^---$/gm, '<hr style="border:none;border-top:1px solid var(--border);margin:16px 0">')
+                .replace(/\n{2,}/g, '<br><br>')
+                .replace(/\n/g, '<br>');
+            return html;
         }
 
         function backToKnowledge() {
