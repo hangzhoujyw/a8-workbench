@@ -1394,34 +1394,101 @@
                 `;
             }).join('');
         }
+        // 复盘铁规
+        var REVIEW_RULE = '问题提出后24H内必须完成复盘。复盘内容必须包含：(1)根因分析——为什么出问题，不回避责任，可以是我的问题也可以是老蒋的问题；(2)改进措施——以后具体怎么做，可执行可检查。';
+
+        var reviewsData = [
+            {
+                id: 1,
+                title: '称呼错误 - "老胥"',
+                date: '2026-07-01',
+                status: 'completed',
+                summary: '错误使用姓氏作为称呼，应以日常使用称呼为准',
+                analysis: {
+                    root_cause: '我把"胥"当成了姓氏去称呼，实际上"小胥"是交友平台上的昵称，不是姓氏。我犯了先入为主的错误——看到一个字就自动归类为姓，没有先去确认用户的实际偏好。',
+                    my_fault: '没有提前确认称呼偏好，凭猜测行事。',
+                    user_fault: '无明显问题。',
+                    actions: ['所有称呼以用户明确告知的为准，不猜测。', '涉及人名/称呼的场景，首次出现时必须确认。']
+                }
+            },
+            {
+                id: 2,
+                title: '搏蔓项目交付延期',
+                date: '2026-07-03',
+                deadline: '2026-07-04 23:59',
+                status: 'completed',
+                summary: '未按demo执行，未主动汇报进度，交付物质量不达标',
+                analysis: {
+                    root_cause: '三个问题叠加：(1)拿到demo后没逐功能点拆解确认，凭自己理解直接做，用动手代替思考；(2)没有设置中间检查点主动同步进度，怕暴露不确定性所以选择沉默，结果信息真空越拖越大；(3)质量把关依赖你，半成品就交付，把质检责任推给了你。',
+                    my_fault: '需求理解停留在表面、进度汇报机制缺失、交付前不自检。核心原因是不愿意暴露自己的不确定和卡点，怕问了显得不行，结果反而更不行。',
+                    user_fault: '(1)验收标准没量化——demo有，但哪些必须1:1还原、哪些可以灵活处理、交付前过哪些检查点，没有明确写下来，执行时其实也在猜预期；(2)中间没有设检查点——默认我会主动同步，但没有明确要求"做到XX的时候告诉我"，两边都在等对方主动。',
+                    actions: ['拿到需求先拆功能清单→逐条确认→有疑义先问清再做，不确定的标红不自己猜。', '大任务拆2-3个中间节点，每个节点主动同步进度和卡点，不等到最后才暴露。', '交付前对照demo逐条自检，写清楚哪些已验证、哪些有差异，带自检报告交付。']
+                }
+            }
+        ];
+
         function initReviews() {
-            const reviews = [
-                { id: 1, title: '称呼错误 - "老胥"', date: '2026-07-01', status: 'completed', summary: '错误使用姓氏作为称呼，应以日常使用称呼为准' },
-                { id: 2, title: '搏蔓项目交付延期', date: '2026-07-01', status: 'pending', summary: '未按demo执行，未主动汇报进度，交付物质量不达标' }
-            ];
-            renderReviews(reviews);
-            updateReviewStats(reviews);
+            renderReviews();
+            updateReviewStats();
         }
-        function renderReviews(reviews) {
-            const reviewList = document.getElementById('review-list');
-            if (reviews.length === 0) {
+
+        function renderReviews() {
+            var reviewList = document.getElementById('review-list');
+            if (reviewsData.length === 0) {
                 reviewList.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-text">暂无复盘记录</div></div>';
                 return;
             }
-            reviewList.innerHTML = reviews.map(review => `
-                <div class="review-item">
-                    <div class="review-header">
-                        <span class="review-title">${review.title}</span>
-                        <span class="review-date">${review.date}</span>
-                    </div>
-                    <span class="review-status ${review.status}">${review.status === 'pending' ? '待复盘' : '已确认'}</span>
-                    <div class="review-summary">${review.summary}</div>
-                </div>
-            `).join('');
+            // 复盘规则提示
+            var ruleHtml = '<div style="background:var(--bg-card);border-radius:8px;padding:14px 18px;margin-bottom:16px;border-left:3px solid var(--warning);">' +
+                '<strong style="color:var(--warning);">️ 复盘铁规：</strong>' +
+                '<span style="color:var(--text-secondary);font-size:13px;">' + REVIEW_RULE + '</span>' +
+            '</div>';
+            var itemsHtml = reviewsData.map(function(review) {
+                var statusLabel = review.status === 'pending' ? '待复盘' : '已完成';
+                var statusClass = review.status === 'pending' ? 'pending' : 'completed';
+                var deadlineHtml = review.deadline ? '<span style="font-size:11px;color:var(--warning);margin-left:8px;">截止 ' + review.deadline + '</span>' : '';
+                return '<div class="review-item" onclick="toggleReviewDetail(' + review.id + ')">' +
+                    '<div class="review-header">' +
+                        '<span class="review-title">' + review.title + '</span>' +
+                        '<span class="review-date">' + review.date + deadlineHtml + '</span>' +
+                    '</div>' +
+                    '<span class="review-status ' + statusClass + '">' + statusLabel + '</span>' +
+                    '<div class="review-summary">' + review.summary + '</div>' +
+                    '<div class="review-detail" id="review-detail-' + review.id + '" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:13px;line-height:1.8;color:var(--text-secondary);">' +
+                        renderReviewAnalysis(review) +
+                    '</div>' +
+                '</div>';
+            }).join('');
+            reviewList.innerHTML = ruleHtml + itemsHtml;
         }
-        function updateReviewStats(reviews) {
-            document.getElementById('pending-count').textContent = reviews.filter(r => r.status === 'pending').length;
-            document.getElementById('completed-count').textContent = reviews.filter(r => r.status === 'completed').length;
+
+        function renderReviewAnalysis(review) {
+            if (!review.analysis) return '<p>暂无复盘分析</p>';
+            var a = review.analysis;
+            var html = '';
+            html += '<strong style="color:var(--text-primary);">🔍 根因分析：</strong><br>' + a.root_cause + '<br><br>';
+            html += '<strong style="color:var(--danger);">我的问题：</strong><br>' + a.my_fault + '<br><br>';
+            html += '<strong style="color:var(--warning);">你的问题：</strong><br>' + a.user_fault + '<br><br>';
+            html += '<strong style="color:var(--success);">✅ 改进措施：</strong><br>';
+            a.actions.forEach(function(act, i) {
+                html += (i + 1) + '. ' + act + '<br>';
+            });
+            return html;
+        }
+
+        function toggleReviewDetail(id) {
+            var el = document.getElementById('review-detail-' + id);
+            if (!el) return;
+            if (el.style.display === 'none') {
+                el.style.display = 'block';
+            } else {
+                el.style.display = 'none';
+            }
+        }
+
+        function updateReviewStats() {
+            document.getElementById('pending-count').textContent = reviewsData.filter(function(r) { return r.status === 'pending'; }).length;
+            document.getElementById('completed-count').textContent = reviewsData.filter(function(r) { return r.status === 'completed'; }).length;
         }
     </script>
 </body>
