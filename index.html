@@ -464,6 +464,30 @@
                         <h2>知识库</h2>
                         <button class="btn btn-primary" onclick="backToKnowledge()">+ 新增知识</button>
                     </div>
+                    <!-- 英语学习专区：今日学习 -->
+                    <div id="english-today-section" style="display:none;margin-bottom:24px;">
+                        <div style="background:var(--bg-card);border-radius:8px;padding:20px;border:1px solid var(--accent);">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                                <h3 style="color:var(--accent);font-size:18px;">📖 今日英语学习</h3>
+                                <span id="english-today-tag" style="font-size:12px;padding:3px 10px;border-radius:4px;background:rgba(0,217,255,0.15);color:var(--accent);"></span>
+                            </div>
+                            <div id="english-today-audio" style="margin-bottom:16px;"></div>
+                            <div id="english-today-body" style="font-size:14px;line-height:1.8;color:var(--text-secondary);"></div>
+                        </div>
+                    </div>
+                    <!-- 英语学习专区：历史归档 -->
+                    <div id="english-archive-section" style="display:none;margin-bottom:24px;">
+                        <div style="background:var(--bg-card);border-radius:8px;overflow:hidden;">
+                            <div onclick="toggleEnglishArchive()" style="padding:16px 20px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:background 0.2s;">
+                                <h3 style="font-size:16px;">📚 历史学习记录</h3>
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <span id="english-archive-count" style="background:var(--bg-secondary);padding:2px 10px;border-radius:10px;font-size:12px;color:var(--text-secondary);"></span>
+                                    <span id="english-archive-arrow" style="color:var(--text-secondary);transition:transform 0.2s;">▼</span>
+                                </div>
+                            </div>
+                            <div id="english-archive-list" style="display:none;padding:0 20px 16px;"></div>
+                        </div>
+                    </div>
                     <div class="knowledge-grid" id="knowledge-grid"></div>
                     <div class="knowledge-detail" id="knowledge-detail">
                         <div class="knowledge-detail-card">
@@ -473,6 +497,7 @@
                                 <span id="breadcrumb-knowledge-category"></span>
                             </div>
                             <h2 id="knowledge-detail-title"></h2>
+                            <div id="knowledge-detail-audio" style="margin:12px 0;"></div>
                             <div class="knowledge-detail-content" id="knowledge-detail-body"></div>
                             <div style="display:flex;gap:12px;margin-top:16px;">
                                 <button class="btn btn-primary" onclick="backToKnowledge()">返回</button>
@@ -581,7 +606,7 @@
         function loadEnglishLearning() {
             // 从本地JSON文件加载今日英语学习内容
             // 文件路径: ./英语学习/每日内容/today.json
-            fetch('./英语学习/每日内容/today.json')
+            fetch('./英语学习/每日内容/today.json?v=' + Date.now())
                 .then(res => {
                     if (!res.ok) throw new Error('Not found');
                     return res.json();
@@ -605,7 +630,7 @@
             let html = '';
             // 音频播放器
             if (data.audio_file) {
-                const audioSrc = './英语学习/音频/' + data.audio_file;
+                const audioSrc = './英语学习/音频/' + data.audio_file + '?v=' + Date.now();
                 html += `<div style="background:var(--bg-card);border-radius:8px;padding:12px 16px;margin-bottom:16px;border:1px solid var(--border);">`;
                 html += `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">`;
                 html += `<span style="font-size:20px;">🔊</span>`;
@@ -1078,27 +1103,176 @@
             loadEnglishArchive();
         }
 
+        var englishArchiveData = [];
+        var englishTodayData = null;
+
         function loadEnglishArchive() {
-            fetch('./英语学习/archive_index.json')
+            var ts = '?v=' + Date.now();
+            // 1. 加载今日内容
+            fetch('./英语学习/每日内容/today.json' + ts)
+                .then(function(r) { return r.ok ? r.json() : null; })
+                .then(function(today) {
+                    englishTodayData = today;
+                    if (today) {
+                        renderEnglishToday(today);
+                    }
+                })
+                .catch(function() { console.log('[知识库] 今日英语学习加载失败'); });
+
+            // 2. 加载历史归档
+            fetch('./英语学习/archive_index.json' + ts)
                 .then(function(r) { return r.ok ? r.json() : {}; })
                 .then(function(archive) {
-                    var cat = knowledgeData.find(function(c) { return c.id === 'english'; });
-                    if (!cat) return;
-                    // 按 day 降序排列
                     var entries = Object.values(archive).sort(function(a, b) { return b.day - a.day; });
-                    cat.items = entries.map(function(e) {
-                        return {
-                            title: 'Day ' + e.day + ' - ' + e.scene + '（' + e.topic + '）',
-                            meta: e.date + ' | ' + e.phase + ' | 句型' + e.phrases_count + '个 词汇' + e.vocab_count + '个',
-                            tag: e.phase,
-                            content: '__LOAD_FILE__:' + e.file,
-                            file: e.file
-                        };
-                    });
+                    englishArchiveData = entries;
+
+                    // 渲染今日内容
+                    var todaySection = document.getElementById('english-today-section');
+                    if (englishTodayData) {
+                        todaySection.style.display = 'block';
+                    }
+
+                    // 渲染历史归档
+                    if (entries.length > 0) {
+                        var archiveSection = document.getElementById('english-archive-section');
+                        archiveSection.style.display = 'block';
+                        document.getElementById('english-archive-count').textContent = entries.length + '天';
+                        renderEnglishArchiveList(entries);
+                    }
+
+                    // 同步更新 knowledgeData 中 english 分类（排除今天，避免重复）
+                    var cat = knowledgeData.find(function(c) { return c.id === 'english'; });
+                    if (cat && englishTodayData) {
+                        var todayDay = englishTodayData.day || (englishTodayData.date ? 0 : -1);
+                        cat.items = entries.filter(function(e) { return e.day !== todayDay; }).map(function(e) {
+                            return {
+                                title: 'Day ' + e.day + ' - ' + e.scene + '（' + e.topic + '）',
+                                meta: e.date + ' | ' + e.phase + ' | 句型' + e.phrases_count + '个 词汇' + e.vocab_count + '个',
+                                tag: e.phase,
+                                content: '__LOAD_FILE__:' + e.file,
+                                file: e.file,
+                                audio_file: e.audio_file || null
+                            };
+                        });
+                    }
                     renderKnowledgeGrid();
                 })
                 .catch(function(err) {
                     console.log('[知识库] 英语学习归档加载失败:', err);
+                });
+        }
+
+        function renderEnglishToday(data) {
+            var tag = document.getElementById('english-today-tag');
+            tag.textContent = 'Day ' + data.day + ' · ' + (data.scene || '');
+
+            // 音频
+            var audioHtml = '';
+            if (data.audio_file) {
+                var audioSrc = './英语学习/音频/' + data.audio_file + '?v=' + Date.now();
+                audioHtml += '<div style="background:var(--bg-secondary);border-radius:8px;padding:12px 16px;border:1px solid var(--border);">';
+                audioHtml += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">';
+                audioHtml += '<span style="font-size:20px;">🔊</span>';
+                audioHtml += '<strong style="color:var(--accent);">今日对话音频</strong>';
+                audioHtml += '</div>';
+                audioHtml += '<audio controls style="width:100%;height:36px;" preload="metadata">';
+                audioHtml += '<source src="' + audioSrc + '" type="audio/mpeg">';
+                audioHtml += '您的浏览器不支持音频播放</audio>';
+                audioHtml += '</div>';
+            }
+            document.getElementById('english-today-audio').innerHTML = audioHtml;
+
+            // 内容
+            var html = '';
+            if (data.listening) {
+                html += '<strong style="color:var(--text-primary);">🎧 听力任务</strong><br>' + data.listening + '<br><br>';
+            }
+            if (data.sentences && data.sentences.length > 0) {
+                html += '<strong style="color:var(--text-primary);">💬 场景句型</strong><br>';
+                data.sentences.forEach(function(s) {
+                    html += '• ' + s.en + '<br>  <span style="color:var(--text-secondary);">' + s.cn + '</span><br>';
+                });
+                html += '<br>';
+            }
+            if (data.vocabulary && data.vocabulary.length > 0) {
+                html += '<strong style="color:var(--text-primary);">📖 核心词汇</strong><br>';
+                data.vocabulary.forEach(function(v) {
+                    html += '• <strong style="color:var(--accent);">' + v.word + '</strong> ' + v.phonetic + ' - ' + v.meaning + '<br>';
+                });
+                html += '<br>';
+            }
+            if (data.practice) {
+                html += '<strong style="color:var(--text-primary);">🗣️ 口语练习</strong><br>' + data.practice;
+            }
+            document.getElementById('english-today-body').innerHTML = html;
+        }
+
+        function renderEnglishArchiveList(entries) {
+            var list = document.getElementById('english-archive-list');
+            list.innerHTML = entries.map(function(e, idx) {
+                var isToday = englishTodayData && e.day === englishTodayData.day;
+                var badge = isToday ? '<span style="font-size:10px;padding:2px 6px;border-radius:3px;background:var(--success);color:#fff;margin-left:8px;">今天</span>' : '';
+                return '<div class="knowledge-item" onclick="openEnglishArchiveDay(' + idx + ')">' +
+                    '<div class="knowledge-item-title">Day ' + e.day + ' - ' + e.scene + '（' + e.topic + '）' + badge +
+                    '<span class="knowledge-item-tag">' + e.phase + '</span></div>' +
+                    '<div class="knowledge-item-meta">' + e.date + ' | 句型' + e.phrases_count + '个 词汇' + e.vocab_count + '个</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        function toggleEnglishArchive() {
+            var list = document.getElementById('english-archive-list');
+            var arrow = document.getElementById('english-archive-arrow');
+            if (list.style.display === 'none') {
+                list.style.display = 'block';
+                arrow.style.transform = 'rotate(180deg)';
+            } else {
+                list.style.display = 'none';
+                arrow.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function openEnglishArchiveDay(idx) {
+            var entry = englishArchiveData[idx];
+            if (!entry) return;
+            var ts = '?v=' + Date.now();
+
+            document.getElementById('knowledge-grid').style.display = 'none';
+            document.getElementById('english-today-section').style.display = 'none';
+            document.getElementById('english-archive-section').style.display = 'none';
+            document.getElementById('knowledge-detail').classList.add('active');
+            document.getElementById('breadcrumb-knowledge-category').textContent = '英语学习';
+            document.getElementById('knowledge-detail-title').textContent = 'Day ' + entry.day + ' - ' + entry.scene + '（' + entry.topic + '）';
+
+            // 音频
+            var audioHtml = '';
+            if (entry.audio_file) {
+                var audioSrc = './英语学习/音频/' + entry.audio_file + ts;
+                audioHtml += '<div style="background:var(--bg-secondary);border-radius:8px;padding:12px 16px;border:1px solid var(--border);">';
+                audioHtml += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">';
+                audioHtml += '<span style="font-size:20px;">🔊</span>';
+                audioHtml += '<strong style="color:var(--accent);">对话音频</strong>';
+                audioHtml += '</div>';
+                audioHtml += '<audio controls style="width:100%;height:36px;" preload="metadata">';
+                audioHtml += '<source src="' + audioSrc + '" type="audio/mpeg">';
+                audioHtml += '您的浏览器不支持音频播放</audio>';
+                audioHtml += '</div>';
+            }
+            document.getElementById('knowledge-detail-audio').innerHTML = audioHtml;
+
+            // 加载 markdown 内容
+            document.getElementById('knowledge-detail-body').innerHTML = '<p style="color:var(--text-secondary)">加载中...</p>';
+            fetch('./英语学习/每日内容/' + entry.file + ts)
+                .then(function(r) { return r.ok ? r.text() : null; })
+                .then(function(md) {
+                    if (md) {
+                        document.getElementById('knowledge-detail-body').innerHTML = simpleMarkdown(md);
+                    } else {
+                        document.getElementById('knowledge-detail-body').innerHTML = '<p style="color:var(--danger)">文件加载失败</p>';
+                    }
+                })
+                .catch(function() {
+                    document.getElementById('knowledge-detail-body').innerHTML = '<p style="color:var(--danger)">文件加载失败</p>';
                 });
         }
 
@@ -1174,7 +1348,15 @@
 
         function backToKnowledge() {
             document.getElementById('knowledge-detail').classList.remove('active');
+            document.getElementById('knowledge-detail-audio').innerHTML = '';
             document.getElementById('knowledge-grid').style.display = '';
+            // 恢复英语学习专区显示
+            if (englishTodayData) {
+                document.getElementById('english-today-section').style.display = 'block';
+            }
+            if (englishArchiveData.length > 0) {
+                document.getElementById('english-archive-section').style.display = 'block';
+            }
         }
 
         function openProject(projectId) {
