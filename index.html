@@ -1108,58 +1108,46 @@
 
         function loadEnglishArchive() {
             var ts = '?v=' + Date.now();
-            // 1. 加载今日内容
-            fetch('./英语学习/每日内容/today.json' + ts)
-                .then(function(r) { return r.ok ? r.json() : null; })
-                .then(function(today) {
-                    englishTodayData = today;
-                    if (today) {
-                        renderEnglishToday(today);
-                    }
-                })
-                .catch(function() { console.log('[知识库] 今日英语学习加载失败'); });
+            Promise.all([
+                fetch('./英语学习/每日内容/today.json' + ts).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
+                fetch('./英语学习/archive_index.json' + ts).then(function(r) { return r.ok ? r.json() : {}; }).catch(function() { return {}; })
+            ]).then(function(results) {
+                var today = results[0];
+                var archive = results[1];
+                englishTodayData = today;
+                var entries = Object.values(archive).sort(function(a, b) { return b.day - a.day; });
+                englishArchiveData = entries;
 
-            // 2. 加载历史归档
-            fetch('./英语学习/archive_index.json' + ts)
-                .then(function(r) { return r.ok ? r.json() : {}; })
-                .then(function(archive) {
-                    var entries = Object.values(archive).sort(function(a, b) { return b.day - a.day; });
-                    englishArchiveData = entries;
+                // 渲染今日内容
+                if (today) {
+                    renderEnglishToday(today);
+                    document.getElementById('english-today-section').style.display = 'block';
+                }
 
-                    // 渲染今日内容
-                    var todaySection = document.getElementById('english-today-section');
-                    if (englishTodayData) {
-                        todaySection.style.display = 'block';
-                    }
+                // 渲染历史归档
+                if (entries.length > 0) {
+                    document.getElementById('english-archive-section').style.display = 'block';
+                    document.getElementById('english-archive-count').textContent = entries.length + '天';
+                    renderEnglishArchiveList(entries);
+                }
 
-                    // 渲染历史归档
-                    if (entries.length > 0) {
-                        var archiveSection = document.getElementById('english-archive-section');
-                        archiveSection.style.display = 'block';
-                        document.getElementById('english-archive-count').textContent = entries.length + '天';
-                        renderEnglishArchiveList(entries);
-                    }
-
-                    // 同步更新 knowledgeData 中 english 分类（排除今天，避免重复）
-                    var cat = knowledgeData.find(function(c) { return c.id === 'english'; });
-                    if (cat && englishTodayData) {
-                        var todayDay = englishTodayData.day || (englishTodayData.date ? 0 : -1);
-                        cat.items = entries.filter(function(e) { return e.day !== todayDay; }).map(function(e) {
-                            return {
-                                title: 'Day ' + e.day + ' - ' + e.scene + '（' + e.topic + '）',
-                                meta: e.date + ' | ' + e.phase + ' | 句型' + e.phrases_count + '个 词汇' + e.vocab_count + '个',
-                                tag: e.phase,
-                                content: '__LOAD_FILE__:' + e.file,
-                                file: e.file,
-                                audio_file: e.audio_file || null
-                            };
-                        });
-                    }
-                    renderKnowledgeGrid();
-                })
-                .catch(function(err) {
-                    console.log('[知识库] 英语学习归档加载失败:', err);
-                });
+                // 同步更新 knowledgeData 中 english 分类（排除今天，避免重复）
+                var cat = knowledgeData.find(function(c) { return c.id === 'english'; });
+                if (cat) {
+                    var todayDay = today ? today.day : -1;
+                    cat.items = entries.filter(function(e) { return e.day !== todayDay; }).map(function(e) {
+                        return {
+                            title: 'Day ' + e.day + ' - ' + e.scene + '（' + e.topic + '）',
+                            meta: e.date + ' | ' + e.phase + ' | 句型' + e.phrases_count + '个 词汇' + e.vocab_count + '个',
+                            tag: e.phase,
+                            content: '__LOAD_FILE__:' + e.file,
+                            file: e.file,
+                            audio_file: e.audio_file || null
+                        };
+                    });
+                }
+                renderKnowledgeGrid();
+            });
         }
 
         function renderEnglishToday(data) {
