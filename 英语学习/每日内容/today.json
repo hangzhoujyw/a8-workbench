@@ -1,61 +1,72 @@
 {
-  "date": "2026-07-03",
-  "day": 1,
+  "date": "2026-07-04",
+  "day": 3,
   "phase": "第1阶段：激活期（第1周）",
-  "scene": "机场出行 - 值机与安检",
-  "listening": "搜索「ESL Pod Airport」或「BBC 6 Minute English Airport」，选择一集跟听。初期不求听懂每个词，重点是熟悉语流和节奏。",
+  "scene": "机场出行 - 打车 Taxi",
+  "listening": "lunanotes.io - Master English Taxi Conversations: Practical Phrases & Tips Abroad",
   "sentences": [
     {
-      "en": "Where can I check in for my flight?",
-      "cn": "哪里可以办理值机？"
+      "en": "Can you take me to the train station?",
+      "cn": "能带我去火车站吗？"
     },
     {
-      "en": "I have a reservation under the name Jiang.",
-      "cn": "我用蒋的名字预订了。"
+      "en": "How much is the fare to the airport?",
+      "cn": "去机场多少钱？"
     },
     {
-      "en": "Can I have a window seat, please?",
-      "cn": "请给我靠窗的座位。"
+      "en": "Please take the faster route if you can.",
+      "cn": "如果可以的话，请走快的路线。"
     },
     {
-      "en": "How many bags can I check in?",
-      "cn": "我可以托运几件行李？"
+      "en": "Can I pay by card?",
+      "cn": "我可以刷卡吗？"
     },
     {
-      "en": "Is this bag within the weight limit?",
-      "cn": "这个行李在限重范围内吗？"
+      "en": "Here you go. Keep the change.",
+      "cn": "给你，不用找了。"
     },
     {
-      "en": "Where is the security checkpoint?",
-      "cn": "安检处在哪里？"
+      "en": "Can you stop here? This is fine.",
+      "cn": "能停这儿吗？这儿就可以了。"
+    },
+    {
+      "en": "Could you hold your phone up so I can see the GPS?",
+      "cn": "能把手机举起来让我看清导航吗？"
+    },
+    {
+      "en": "We should be there in about fifteen minutes.",
+      "cn": "大概十五分钟能到。"
     }
   ],
   "vocabulary": [
     {
-      "word": "check in",
-      "phonetic": "/tʃek ɪn/",
-      "meaning": "办理登机手续、值机"
+      "word": "available",
+      "phonetic": "/əˈveɪləbəl/",
+      "meaning": "可用的；有空的（指出租车是否在载客）"
     },
     {
-      "word": "boarding pass",
-      "phonetic": "/ˈbɔːrdɪŋ pæs/",
-      "meaning": "登机牌"
+      "word": "meter",
+      "phonetic": "/ˈmiːtər/",
+      "meaning": "计价器"
     },
     {
-      "word": "carry-on",
-      "phonetic": "/ˈkæri ɒn/",
-      "meaning": "随身行李"
+      "word": "fare",
+      "phonetic": "/fer/",
+      "meaning": "车费；票价"
     },
     {
-      "word": "security",
-      "phonetic": "/sɪˈkjʊərəti/",
-      "meaning": "安检"
+      "word": "drop off",
+      "phonetic": "/drɑːp ɔːf/",
+      "meaning": "（让乘客）下车"
     },
     {
-      "word": "gate",
-      "phonetic": "/ɡeɪt/",
-      "meaning": "登机口"
+      "word": "tip",
+      "phonetic": "/tɪp/",
+      "meaning": "小费；给…小费"
     }
   ],
-  "practice": "假装你在机场，用英语自言自语：你现在在哪个航站楼？你要去哪里？你的航班几点起飞？试着用上面的句型说出来。"
+  "practice": "Passenger: Taxi! Excuse me, are you available? Driver: Yes, where to? Passenger: Please take me to the train station. Driver: Sure, hop in. Passenger: How long will it take? Driver: About fifteen minutes, depending on traffic.",
+  "audio_file": "day_003_对话.mp3",
+  "audio_path": "./codeact/output/英语学习/音频/day_003_对话.mp3",
+  "audio_generated_at": "2026-07-04 08:33:39"
 }

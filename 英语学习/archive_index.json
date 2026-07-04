@@ -37,5 +37,31 @@
     "vocab_count": 5,
     "listening": "TED Talk",
     "tip": "实战期尝试用英语思考和表达，不要先想中文再翻译。"
+  },
+  "2": {
+    "day": 2,
+    "date": "2026-07-03",
+    "phase": "激活期",
+    "week": 1,
+    "scene": "机场出行",
+    "topic": "海关 Customs",
+    "file": "day_002.md",
+    "phrases_count": 8,
+    "vocab_count": 5,
+    "listening": "ESL Podcast 1006 - Going Through Customs",
+    "tip": "今天练习时试着把语速放慢一点——海关对话不需要快，清晰准确才是最重要的。慢慢说，官员反而觉得你更有准备、更自信。"
+  },
+  "3": {
+    "day": 3,
+    "date": "2026-07-04",
+    "phase": "激活期",
+    "week": 1,
+    "scene": "机场出行",
+    "topic": "打车 Taxi",
+    "file": "day_003.md",
+    "phrases_count": 8,
+    "vocab_count": 5,
+    "listening": "lunanotes.io - Master English Taxi Conversations: Practical Phrases & Tips Abroad",
+    "tip": "今天试着把'Can you take me to...'这个句型大声说三遍，这是打车最核心的表达，说顺了就不紧张！"
   }
 }
