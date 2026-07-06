@@ -1,72 +1,68 @@
 {
-  "date": "2026-07-04",
-  "day": 3,
+  "date": "2026-07-06",
+  "day": 5,
   "phase": "第1阶段：激活期（第1周）",
-  "scene": "机场出行 - 打车 Taxi",
-  "listening": "lunanotes.io - Master English Taxi Conversations: Practical Phrases & Tips Abroad",
+  "scene": "机场出行 - 问路 Asking for Directions",
+  "listening": "ESL Podcast 1035 - Getting Directions",
   "sentences": [
     {
-      "en": "Can you take me to the train station?",
-      "cn": "能带我去火车站吗？"
+      "en": "Excuse me, do you know how to get to the subway station?",
+      "cn": "打扰一下，你知道怎么去地铁站吗？"
     },
     {
-      "en": "How much is the fare to the airport?",
-      "cn": "去机场多少钱？"
+      "en": "Is it within walking distance?",
+      "cn": "走路能到吗？"
     },
     {
-      "en": "Please take the faster route if you can.",
-      "cn": "如果可以的话，请走快的路线。"
+      "en": "Can you show me on the map?",
+      "cn": "你能在地图上给我指一下吗？"
     },
     {
-      "en": "Can I pay by card?",
-      "cn": "我可以刷卡吗？"
+      "en": "It's on the corner of Main Street and Fifth Avenue.",
+      "cn": "它在主街和第五大道的拐角处。"
     },
     {
-      "en": "Here you go. Keep the change.",
-      "cn": "给你，不用找了。"
+      "en": "Go straight for about two blocks, then turn left.",
+      "cn": "直走大概两个街区，然后左转。"
     },
     {
-      "en": "Can you stop here? This is fine.",
-      "cn": "能停这儿吗？这儿就可以了。"
+      "en": "You can't miss it — it's the big red building.",
+      "cn": "你肯定能找到——就是那个大红楼。"
     },
     {
-      "en": "Could you hold your phone up so I can see the GPS?",
-      "cn": "能把手机举起来让我看清导航吗？"
-    },
-    {
-      "en": "We should be there in about fifteen minutes.",
-      "cn": "大概十五分钟能到。"
+      "en": "Is there a shortcut?",
+      "cn": "有近道吗？"
     }
   ],
   "vocabulary": [
     {
-      "word": "available",
-      "phonetic": "/əˈveɪləbəl/",
-      "meaning": "可用的；有空的（指出租车是否在载客）"
+      "word": "intersection",
+      "phonetic": "/ˌɪntərˈsekʃən/",
+      "meaning": "十字路口，交叉路口"
     },
     {
-      "word": "meter",
-      "phonetic": "/ˈmiːtər/",
-      "meaning": "计价器"
+      "word": "landmark",
+      "phonetic": "/ˈlændmɑːrk/",
+      "meaning": "地标，标志性建筑"
     },
     {
-      "word": "fare",
-      "phonetic": "/fer/",
-      "meaning": "车费；票价"
+      "word": "block",
+      "phonetic": "/blɑːk/",
+      "meaning": "街区（两条街之间的距离）"
     },
     {
-      "word": "drop off",
-      "phonetic": "/drɑːp ɔːf/",
-      "meaning": "（让乘客）下车"
+      "word": "detour",
+      "phonetic": "/ˈdiːtʊr/",
+      "meaning": "绕路，迂回"
     },
     {
-      "word": "tip",
-      "phonetic": "/tɪp/",
-      "meaning": "小费；给…小费"
+      "word": "straight ahead",
+      "phonetic": "/streɪt əˈhed/",
+      "meaning": "一直向前"
     }
   ],
-  "practice": "Passenger: Taxi! Excuse me, are you available? Driver: Yes, where to? Passenger: Please take me to the train station. Driver: Sure, hop in. Passenger: How long will it take? Driver: About fifteen minutes, depending on traffic.",
-  "audio_file": "day_003_对话.mp3",
-  "audio_path": "./codeact/output/英语学习/音频/day_003_对话.mp3",
-  "audio_generated_at": "2026-07-04 08:33:39"
+  "practice": "Excuse me, could you tell me how to get to the train station? Sure, go straight for about three blocks, then turn right at the second traffic light. You'll see a big blue building on your left. You can't miss it.",
+  "audio_file": "day_005_对话.mp3",
+  "audio_path": "./codeact/output/英语学习/音频/day_005_对话.mp3",
+  "audio_generated_at": "2026-07-06 08:34:46"
 }

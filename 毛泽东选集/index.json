@@ -1,0 +1,21 @@
+{
+  "start_date": "2026-07-06",
+  "schedule": "每周日20:00",
+  "total_completed": 1,
+  "next": {
+    "volume": 1,
+    "index": 2,
+    "title": "湖南农民运动考察报告"
+  },
+  "articles": [
+    {
+      "week": 1,
+      "volume": 1,
+      "index": 1,
+      "title": "中国社会各阶级的分析",
+      "learned_date": "2026-07-06",
+      "summary_file": "week_001_中国社会各阶级的分析.md",
+      "original_file": "卷1_01_中国社会各阶级的分析.md"
+    }
+  ]
+}

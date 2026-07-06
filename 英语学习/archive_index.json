@@ -68,5 +68,33 @@
     "listening": "lunanotes.io - Master English Taxi Conversations: Practical Phrases & Tips Abroad",
     "tip": "今天试着把'Can you take me to...'这个句型大声说三遍，这是打车最核心的表达，说顺了就不紧张！",
     "audio_file": "day_003_对话.mp3"
+  },
+  "4": {
+    "day": 4,
+    "date": "2026-07-05",
+    "phase": "激活期",
+    "week": 1,
+    "scene": "机场出行",
+    "topic": "问路 Asking for Directions",
+    "file": "day_004.md",
+    "phrases_count": 8,
+    "vocab_count": 5,
+    "listening": "Learn English with BBC - S1 Episode 02: Lost Luggage",
+    "tip": "问路时记得先说 'Excuse me'，对方帮你后说 'Thank you'，礼貌用语是英语社交的敲门砖！",
+    "audio_file": "day_004_对话.mp3"
+  },
+  "5": {
+    "day": 5,
+    "date": "2026-07-06",
+    "phase": "激活期",
+    "week": 1,
+    "scene": "机场出行",
+    "topic": "问路 Asking for Directions",
+    "file": "day_005.md",
+    "phrases_count": 7,
+    "vocab_count": 5,
+    "listening": "ESL Podcast 1035 - Getting Directions",
+    "tip": "问路时加 'Excuse me' 开场，对方会更愿意帮你；到了陌生城市，用 Google Maps 导航 + 口语问路配合练习最有效！",
+    "audio_file": "day_005_对话.mp3"
   }
 }
