@@ -1155,7 +1155,7 @@
                 document.getElementById('maoxuan-latest').innerHTML = html;
 
                 // 加载最新提要内容
-                fetch('./毛泽东选集/每周提要/' + latest.summary_file + ts).then(function(r) { return r.ok ? r.text() : ''; }).catch(function() { return ''; }).then(function(text) {
+                fetch('./毛泽东选集/每周提要/' + encodeURI(latest.summary_file) + ts).then(function(r) { return r.ok ? r.text() : ''; }).catch(function() { return ''; }).then(function(text) {
                     maoxuanLatestContent = text;
                 });
 
@@ -1226,7 +1226,7 @@
 
         function openMaoxuanArticle(summaryFile) {
             var ts = '?v=' + Date.now();
-            fetch('./毛泽东选集/每周提要/' + summaryFile + ts).then(function(r) { return r.ok ? r.text() : ''; }).catch(function() { return ''; }).then(function(text) {
+            fetch('./毛泽东选集/每周提要/' + encodeURI(summaryFile) + ts).then(function(r) { return r.ok ? r.text() : ''; }).catch(function() { return ''; }).then(function(text) {
                 var article = maoxuanData.articles.find(function(a) { return a.summary_file === summaryFile; });
                 var title = article ? '《' + article.title + '》学习提要' : '学习提要';
                 document.getElementById('knowledge-grid').style.display = 'none';
